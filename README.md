@@ -1,4 +1,4 @@
-# HTX xData Technical Test (AIE) – Speech-to-Text Pipeline with Search UI
+# HTX xData Technical Test – Speech-to-Text Pipeline + Search UI
 
 ## Live Deployment  
 Access the deployed application here:  
