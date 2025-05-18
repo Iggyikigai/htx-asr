@@ -6,32 +6,24 @@ This project implements a full-stack AI pipeline featuring:
 - Elasticsearch backend indexing
 - React-based Search UI frontend
 - Containerized deployment (optional)
-
 ---
-
-## Repository Structure
-htx-asr/
-│
-├── asr/ # ASR microservice with FastAPI
-│ ├── asr_api.py
-│ └── Dockerfile
-│
-├── elastic-backend/ # Elasticsearch setup and indexer
-│ ├── docker-compose.yml
-│ └── cv-index.py
-│
-├── search-ui/ # React-based Search UI
-│ └── app/ # Created via Create React App
-│ ├── src/
-│ ├── public/
-│ └── Dockerfile # Optional for deployment
-│
-├── cv-decode.py # Transcribe Common Voice mp3s via ASR API
-├── requirements.txt
-├── .gitignore
-├── design.pdf # Deployment architecture (draw.io)
-└── essay.pdf # Monitoring & drift detection strategy
-
+##Repository Structure
+asr/
+- asr_api.py
+- Dockerfile
+elastic-backend/
+- docker-compose.yml
+- cv-index.py
+search-ui/
+- app/
+  - src/
+  - public/
+  - Dockerfile
+cv-decode.py
+requirements.txt
+.gitignore
+design.pdf
+essay.pdf
 
 ---
 
