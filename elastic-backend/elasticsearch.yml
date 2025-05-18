@@ -1,0 +1,12 @@
+network.host: 0.0.0.0
+http.port: 9200
+
+http:
+  cors:
+    enabled: true
+    allow-origin: "*"
+    allow-credentials: true
+    allow-headers: "X-Requested-With,Content-Type,Content-Length,Authorization"
+    allow-methods: "OPTIONS,HEAD,GET,POST,PUT,DELETE"
+
+xpack.security.enabled: false

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  asr-api:
+    build:
+      context: .
+      dockerfile: asr/Dockerfile
+    container_name: asr-api
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    restart: unless-stopped
+
+  search-ui:
+    build:
+      context: ./search-ui/app
+    container_name: search-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+volumes:
+  esdata:
