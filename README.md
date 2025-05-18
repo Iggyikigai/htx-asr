@@ -1,58 +1,59 @@
 # HTX xData Technical Test (AIE) – Speech-to-Text Pipeline with Search UI
 
-This project implements a full-stack AI pipeline featuring:
-- Automatic Speech Recognition (ASR) using `wav2vec2`
-- Transcription of Common Voice mp3 files
-- Elasticsearch backend indexing
-- React-based Search UI frontend
-- Containerized deployment (optional)
----
-##Repository Structure
-asr/
-- asr_api.py
-- Dockerfile
-elastic-backend/
-- docker-compose.yml
-- cv-index.py
-search-ui/
-- app/
-  - src/
-  - public/
-  - Dockerfile
-cv-decode.py
-requirements.txt
-.gitignore
-design.pdf
-essay.pdf
+## Live Deployment  
+Access the deployed application here:  
+**[http://20.2.138.15:3000](http://20.2.138.15:3000)**
+
+## Branches  
+- `main`: Source code for ASR microservice, indexing, and UI  
+- `deployment`: Contains deployment instructions, Dockerfiles, and configuration details
 
 ---
 
-## API Endpoints
+## 1. Getting Started
 
-### `/ping` — Health check
-```http
-GET http://<your-server-ip>:8001/ping
-```
-**Response:**
-```json
-{ "message": "pong" }
+### Prerequisites
+- Python 3.8+  
+- Node.js 16+ (for local Search UI)  
+- Docker + Docker Compose (for full containerized setup)
+
+### Installation (Local, non-Docker)
+```bash
+# Backend dependencies
+pip install -r requirements.txt
+
+# Frontend setup
+cd search-ui/app
+npm install
+npm start
 ```
 
 ---
 
-### `/asr` — Transcribe mp3 audio
-```http
-POST http://<your-server-ip>:8001/asr
-Content-Type: multipart/form-data
-Form field: file (mp3)
-```
+## 2. ASR Microservice
 
-**Example using cURL:**
+### Dataset  
+We use Mozilla’s **Common Voice** dataset for speech-to-text tasks.  
+🔗 [https://commonvoice.mozilla.org/en/datasets](https://commonvoice.mozilla.org/en/datasets)
+
+### File: `asr/asr_api.py`  
+- Implements an ASR microservice using FastAPI and HuggingFace `wav2vec2`
+- Accepts `.mp3` uploads and returns transcription and duration
+
+### Endpoints
+- **Health Check**  
+  `GET /ping` → `{ "message": "pong" }`  
+- **Transcription**  
+  `POST /asr`  
+  Content-Type: `multipart/form-data`  
+  Field: `file` (mp3)
+
+Example:
 ```bash
 curl -F "file=@sample.mp3" http://<your-server-ip>:8001/asr
 ```
 
-**Response:**
+Response:
 ```json
 {
   "transcription": "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
@@ -60,72 +61,60 @@ curl -F "file=@sample.mp3" http://<your-server-ip>:8001/asr
 }
 ```
 
----
-
-## Batch Transcription
-
-Use `cv-decode.py` to automatically process and transcribe a dataset of mp3 files.
-
-```bash
-python cv-decode.py
-```
-
-- Calls the ASR API on each file
-- Appends the result to `generated_text` column in `cv-valid-dev.csv`
+### Batch Processing: `cv-decode.py`
+- Transcribes multiple `.mp3` files and updates the CSV with results under `generated_text`
 
 ---
 
-## Search Interface
+## 3. Elastic-Backend
 
-Access the search UI at:
+### Folder: `elastic-backend/`  
+- `docker-compose.yml`: Multi-node Elasticsearch + Kibana setup  
+- `cv-index.py`:  
+  - Indexes transcriptions and metadata into the `cv-transcriptions` index  
+  - Accepts cleaned `.csv` input
 
-```
-http://<your-server-ip>:3000
-```
-
-### Searchable Fields:
-- Transcribed Text
-- Duration (e.g., 0–5s, 5–10s, 10+s)
-- Speaker Age
-- Gender
-- Accent
-
-Use the search bar and filters in the sidebar to refine your results.
+### Searchable Fields
+- `generated_text` (transcription)  
+- `duration`  
+- `gender`  
+- `age`  
+- `accent`
 
 ---
 
-## Proposed Architecture
+## 4. Search-UI
 
-The system consists of 3 main services:
+### Folder: `search-ui/app/`  
+- React app created using Create React App  
+- Integrates `@elastic/react-search-ui` for real-time query and filtering
 
-```
-[User] ──────────────▶ [Search UI Web App - port 3000]
-           ▲                     │
-           │                     ▼
-      [Transcription Script] ─▶ [Elasticsearch - port 9200]
-           │                     ▲
-           ▼                     │
-   [ASR Inference API - port 8001]  ◀─── mp3 uploads
-```
+### Access
+Deployed frontend (via Nginx):  
+**[http://20.2.138.15:3000](http://20.2.138.15:3000)**
 
-### Components:
-- **ASR API** (FastAPI + HuggingFace Transformers): Accepts audio and returns transcription + duration
-- **Elasticsearch** (cv-transcriptions index): Stores all transcribed records with metadata
-- **Search UI** (React + Elastic Search UI): Provides frontend for filtering and searching
+### Features
+- Full-text search on transcriptions  
+- Filter by speaker metadata  
+- Responsive interface with Elastic UI components
 
 ---
 
-## System Requirements
+## Repository Structure
 
-- Docker + Docker Compose (optional for containerized deployment)
-- Python 3.8+ for API and transcription scripts
-- Node 16+ for Search UI (if running locally)
-
----
-
-## Notes
-
-- All audio input must be mp3 format, 16kHz sampling rate is automatically enforced
-- Transcription model is pre-trained and ready for inference
-- Temporary audio files are automatically deleted after processing
-
+- `asr/`
+  - `asr_api.py`
+  - `Dockerfile`
+- `elastic-backend/`
+  - `docker-compose.yml`
+  - `cv-index.py`
+- `search-ui/`
+  - `app/`
+    - `src/`
+    - `public/`
+    - `Dockerfile`
+- `cv-decode.py`
+- `requirements.txt`
+- `.gitignore`
+- `design.pdf`
+- `essay.pdf`
